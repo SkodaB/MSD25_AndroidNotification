@@ -14,6 +14,7 @@ import com.example.msd25_android.ui.user_repository.UserRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import com.example.msd25_android.logic.NotificationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -21,12 +22,11 @@ fun AddFriendScreen(
     onDone: () -> Unit,
     userViewModel: UserViewModel = viewModel(),
 ) {
-
-
     var friendPhoneNumber by remember { mutableStateOf("") }
     var errorMsg by remember { mutableStateOf("") }
 
-    val userRepository = UserRepository((LocalContext.current.applicationContext as Application).dataStore)
+    val context = LocalContext.current
+    val userRepository = UserRepository((context.applicationContext as Application).dataStore)
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -60,10 +60,10 @@ fun AddFriendScreen(
             Button(
                 onClick = {
                     if (friendPhoneNumber.isNotBlank()) {
-
                         coroutineScope.launch(Dispatchers.IO) {
                             val res = userViewModel.getUserByPhone(friendPhoneNumber)
                             val phone = userRepository.currentPhoneNumber.first()
+
                             if (phone == friendPhoneNumber) {
                                 errorMsg = "Cannot add yourself"
                                 return@launch
@@ -72,17 +72,24 @@ fun AddFriendScreen(
                                 errorMsg = "No user found"
                                 return@launch
                             }
+
                             val friend = res.data!!
-                            // check if users are already friends
                             val friends = userViewModel.getUserWithFriends(phone).data!!.friends
-                            if (friends.filter { it.phoneNumber == friendPhoneNumber }.size == 1) {
+                            if (friends.any { it.phoneNumber == friendPhoneNumber }) {
                                 errorMsg = "You are already friends with this user"
                                 return@launch
                             }
 
                             val user = userViewModel.getUserByPhone(phone).data!!
-
                             userViewModel.createFriendship(user.id, friend.id)
+
+
+                            NotificationHelper.showExpenseNotification(
+                                context,
+                                "Friend Added",
+                                "You added ${friend.name} as a friend"
+                            )
+
                             onDone()
                         }
                     }

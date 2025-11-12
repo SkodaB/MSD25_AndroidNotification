@@ -14,8 +14,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.msd25_android.logic.NotificationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,6 +29,7 @@ fun CreateGroupScreen(
     var memberInput by remember { mutableStateOf("") }
     val members = remember { mutableStateListOf<String>() }
     val cs = MaterialTheme.colorScheme
+    val context = LocalContext.current
 
     val canCreate = name.isNotBlank() && members.isNotEmpty()
 
@@ -60,7 +63,15 @@ fun CreateGroupScreen(
                         )
                     }
                     Button(
-                        onClick = onDone,
+                        onClick = {
+
+                            onDone()
+                            NotificationHelper.showExpenseNotification(
+                                context,
+                                "Group Created",
+                                "New group '$name' created successfully"
+                            )
+                        },
                         enabled = canCreate,
                         modifier = Modifier
                             .fillMaxWidth()

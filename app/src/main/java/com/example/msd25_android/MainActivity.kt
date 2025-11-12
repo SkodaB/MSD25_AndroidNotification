@@ -1,7 +1,10 @@
 package com.example.msd25_android
 
 import android.app.Application
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -37,13 +40,31 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        createNotificationChannel()
         enableEdgeToEdge()
         setContent {
             MSD25_AndroidTheme(dynamicColor = false) {
                 MSD25_AndroidApp()
             }
+        }
+    }
+
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                "expense_channel",
+                "Expense Notifications",
+                NotificationManager.IMPORTANCE_DEFAULT
+            ).apply {
+                description = "Shows notifications for created expenses"
+            }
+
+            val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            manager.createNotificationChannel(channel)
         }
     }
 }
@@ -99,7 +120,6 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
 @Composable
 fun MSD25_AndroidApp() {
 
-
     val (userAuthState, setUserAuthState) = remember { mutableStateOf(UserAuthState.UNKNOWN) }
     val (appCurrent, setAppCurrent) = remember { mutableStateOf(AppDestinations.HOME) }
     val (authCurrent, setAuthCurrent) = remember { mutableStateOf(AuthDestinations.LOGIN) }
@@ -116,9 +136,7 @@ fun MSD25_AndroidApp() {
         coroutineScope.launch(Dispatchers.IO) { sessionManager.restoreToken() }
     }
 
-
     Scaffold(
-
         bottomBar = {
             when (userAuthState) {
                 UserAuthState.UNKNOWN -> {}

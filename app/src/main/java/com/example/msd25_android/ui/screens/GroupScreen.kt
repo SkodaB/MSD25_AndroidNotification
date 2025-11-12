@@ -18,6 +18,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.msd25_android.logic.NotificationHelper
+import androidx.compose.ui.platform.LocalContext
+
 
 data class Expense(val name: String, val amount: Double, val note: String)
 
@@ -32,6 +35,7 @@ fun GroupScreen(
     onBack: () -> Unit = {}
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -96,6 +100,14 @@ fun GroupScreen(
             onConfirm = { name, amount, note ->
                 expenses.add(Expense(name = name, amount = amount, note = note.trim()))
                 showAddDialog = false
+
+
+
+                NotificationHelper.showExpenseNotification(
+                    context,
+                    "Expense Added",
+                    "You added ${name} for ${amount} kr"
+                )
             }
         )
     }

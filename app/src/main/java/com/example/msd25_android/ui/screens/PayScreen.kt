@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.msd25_android.R
 import kotlin.math.roundToInt
+import androidx.compose.ui.platform.LocalContext
+import com.example.msd25_android.logic.NotificationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,6 +35,7 @@ fun PayScreen(
     onBack: () -> Unit
 ) {
     val cs = MaterialTheme.colorScheme
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -79,9 +82,17 @@ fun PayScreen(
                     style = MaterialTheme.typography.headlineLarge.copy(color = cs.primary)
                 )
 
+
                 SwipeToConfirm(
                     text = "Slide to pay",
-                    onConfirmed = onDone
+                    onConfirmed = {
+                        NotificationHelper.showExpenseNotification(
+                            context,
+                            "Payment registered",
+                            "You payed %.2f kr".format(amount)
+                        )
+                        onDone()
+                    }
                 )
             }
         }
