@@ -6,11 +6,9 @@ import androidx.core.app.NotificationManagerCompat
 import com.example.msd25_android.R
 
 object NotificationHelper {
-
-
     fun showExpenseNotification(context: Context, title: String, message: String) {
         val builder = NotificationCompat.Builder(context, "expense_channel")
-            .setSmallIcon(R.drawable.ic_notification) // Replace with any valid drawable in res/drawable
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
